@@ -162,7 +162,7 @@ class PasswordManager:
 		"""
 		Lee el archivo de credenciales del usuario, y desencripta el contenido.
 		
-		Retorna un dict con las credenciales del usuario { username: password }.
+		Retorna un dict con las credenciales del usuario { id: { site: "", username: "", password: "" } }.
 		"""
 
 		credentials_file = self.get_hash(username.encode())		

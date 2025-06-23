@@ -48,6 +48,9 @@ class Util:
 		else:		
 			password = getpass.getpass("Contraseña: ")
 			
+			while password == "":
+				password = getpass.getpass("Contraseña: ")
+			
 			while not self.is_password_strong(password):
 				print(
 				"\nLa contraseña ingresada es debil.\n"
@@ -111,15 +114,20 @@ class Util:
 		credentials = self.pm.load_credentials(self.current_user['username'])
 		
 		if credentials:
-			for i,(k,v) in enumerate(credentials.items(),1):
-				print(f'\n{i})\nUsuario: {k}\nContraseña: {v}')
+			for i,(_,v) in enumerate(credentials.items(),1):
+				print(f'\n{i})\nSitio: {v["site"]}\nUsuario: {v["username"]}\nContraseña: {v["password"]}')
 		else:
 			print("\nNo hay credenciales almacenadas.")
 
 	def insert_credentials(self):
 		print("\nIngrese los datos de su credencial:\n")
 		
+		site = input("Sitio: ")
 		username = input("Usuario: ")
+		
+		while username == "":
+			username = input("Usuario: ")
+		
 		password = self.get_user_password()
 		
 		if username == password:
@@ -127,7 +135,12 @@ class Util:
 			return
 		
 		credentials = self.pm.load_credentials(self.current_user['username'])
-		credentials[username] = password
+		credential_id = base64.b64encode(os.urandom(12)).decode()
+		
+		while credentials.get(credential_id) != None:
+			credential_id = base64.b64encode(os.urandom(12)).decode()
+		
+		credentials[credential_id] = { "site": site, "username": username, "password": password }
 		self.pm.insert_credentials(self.current_user['username'], credentials)
 		print("\nCredenciales almacenadas.")
 
@@ -138,7 +151,7 @@ class Util:
 		
 		if credentials:
 			for i,(k,v) in enumerate(credentials.items(),1):
-				print(f'\n{i})\nUsuario: {k}\nContraseña: {v}\n')
+				print(f'\n{i})\nSitio: {v["site"]}\nUsuario: {v["username"]}\nContraseña: {v["password"]}')
 				temp[i] = k
 			
 			while True:
@@ -169,7 +182,7 @@ class Util:
 		
 		if credentials:
 			for i,(k,v) in enumerate(credentials.items(),1):
-				print(f'\n{i})\nUsuario: {k}\nContraseña: {v}\n')
+				print(f'\n{i})\nSitio: {v["site"]}\nUsuario: {v["username"]}\nContraseña: {v["password"]}')
 				temp[i] = k
 			
 			while True:
@@ -184,15 +197,19 @@ class Util:
 					if option >= 1 and option <= credentials_len:
 						print("\nIngrese los nuevos datos de su credencial:\n")
 						
+						site = input("Sitio: ")
 						username = input("Usuario: ")
+						
+						while username == "":
+							username = input("Usuario: ")
+						
 						password = self.get_user_password()
 						
 						if username == password:
 							print("\nEl usuario y la contraseña no pueden ser iguales.")
 							return
 						
-						del credentials[temp[option]]
-						credentials[username] = password
+						credentials[temp[option]] = { "site": site, "username": username, "password": password }
 						self.pm.insert_credentials(self.current_user['username'],credentials)
 						print("\nCredenciales modificadas.")
 						break
